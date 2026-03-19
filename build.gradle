@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.7-SNAPSHOT'
+    id 'fabric-loom' version '1.9-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -16,13 +16,11 @@ repositories {
 }
 
 loom {
-    // Correctly reference the Access Widener for UI-Utils
+    // This tells Loom to use the standard mapping protocol 
+    it.runtimeOnlyLog4j = true
+    
     accessWidenerPath = file("src/main/resources/ui_utils.accesswidener")
     
-    // Disables Javadoc to speed up the build and prevent "missing folder" errors
-    enableModProvidedJavadoc.set(false)
-
-    // Ensures the 1.21.11 client runs correctly in the dev environment
     runs {
         client {
             client()
