@@ -15,9 +15,20 @@ repositories {
     maven { url = "https://maven.fabricmc.net/" }
 }
 
+// THE UNPICK KILL-SWITCH
+// This intercepts the build before Minecraft setup can fail
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        if (details.requested.name == 'unpick') {
+            details.useVersion '2.1.1'
+        }
+    }
+}
+
 loom {
-    // This tells Loom to use the standard mapping protocol 
     it.runtimeOnlyLog4j = true
+    // Explicitly tells Loom 1.9 to use the forced unpick version
+    it.unpickVersion = "2.1.1" 
     
     accessWidenerPath = file("src/main/resources/ui_utils.accesswidener")
     
@@ -31,48 +42,27 @@ loom {
     }
 }
 
-configurations.all {
-    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-        if (details.requested.name == 'unpick') {
-            details.useVersion '2.1.0' // Forces a known stable version
-        }
-    }
-}
-
-loom {
-    // This tells Loom to skip the constant-unpicking phase
-    it.runtimeOnlyLog4j = true
-    
-    // Ensures the access widener is recognized without needing unpick
-    accessWidenerPath = file("src/main/resources/ui_utils.accesswidener")
-}
-
 dependencies {
-    // Setup using your variables from gradle.properties
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
-    // Fabric API - essential for the mod's screen handlers
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }
 
 processResources {
     inputs.property "version", project.version
-
     filesMatching("fabric.mod.json") {
         expand "version": project.version
     }
 }
 
-// Fixed Java 21 Toolchain for Minecraft 1.21.11
+// Java 21 Toolchain for 1.21.11
 tasks.withType(JavaCompile).configureEach {
     it.options.release = 21
     it.options.encoding = "UTF-8"
 }
 
 java {
-    // Generates the source jar (good for debugging, but optional)
     withSourcesJar()
 }
 
@@ -82,7 +72,6 @@ jar {
     }
 }
 
-// Final publication settings
 publishing {
     publications {
         mavenJava(MavenPublication) {
