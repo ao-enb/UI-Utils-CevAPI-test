@@ -1,5 +1,4 @@
 plugins {
-    // Reverting to the classic ID but using the 1.9 snapshot
     id 'fabric-loom' version '1.9-SNAPSHOT'
     id 'maven-publish'
 }
@@ -16,13 +15,18 @@ repositories {
     maven { url = "https://maven.fabricmc.net/" }
 }
 
+// THE FIX: This forces the unpick version across the entire build
+// and prevents the "Unsupported unpick version" crash during setup.
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        if (details.requested.name == 'unpick') {
+            details.useVersion '2.1.1'
+        }
+    }
+}
+
 loom {
     it.runtimeOnlyLog4j = true
-    
-    // This is the manual fix for the 1.21.11 unpick error
-    // It tells Loom to use the stable 2.1.1 unpick metadata
-    it.unpickVersion = "2.1.1" 
-    
     accessWidenerPath = file("src/main/resources/ui_utils.accesswidener")
     
     runs {
