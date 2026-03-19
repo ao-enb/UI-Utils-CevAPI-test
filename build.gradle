@@ -31,6 +31,22 @@ loom {
     }
 }
 
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        if (details.requested.name == 'unpick') {
+            details.useVersion '2.1.0' // Forces a known stable version
+        }
+    }
+}
+
+loom {
+    // This tells Loom to skip the constant-unpicking phase
+    it.runtimeOnlyLog4j = true
+    
+    // Ensures the access widener is recognized without needing unpick
+    accessWidenerPath = file("src/main/resources/ui_utils.accesswidener")
+}
+
 dependencies {
     // Setup using your variables from gradle.properties
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
