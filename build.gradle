@@ -1,6 +1,6 @@
 plugins {
-    // Loom 1.9.2 with the remap ID is the fix for 1.21.11 errors
-    id 'net.fabricmc.fabric-loom-remap' version '1.9.2'
+    // Reverting to the classic ID but using the 1.9 snapshot
+    id 'fabric-loom' version '1.9-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -17,8 +17,11 @@ repositories {
 }
 
 loom {
-    // Standard stability flags
     it.runtimeOnlyLog4j = true
+    
+    // This is the manual fix for the 1.21.11 unpick error
+    // It tells Loom to use the stable 2.1.1 unpick metadata
+    it.unpickVersion = "2.1.1" 
     
     accessWidenerPath = file("src/main/resources/ui_utils.accesswidener")
     
@@ -33,24 +36,19 @@ loom {
 }
 
 dependencies {
-    // Setup using your variables from gradle.properties
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
-    // Fabric API - essential for the mod's screen handlers
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }
 
 processResources {
     inputs.property "version", project.version
-
     filesMatching("fabric.mod.json") {
         expand "version": project.version
     }
 }
 
-// Java 21 Toolchain for Minecraft 1.21.11
 tasks.withType(JavaCompile).configureEach {
     it.options.release = 21
     it.options.encoding = "UTF-8"
@@ -66,7 +64,6 @@ jar {
     }
 }
 
-// Final publication settings
 publishing {
     publications {
         mavenJava(MavenPublication) {
