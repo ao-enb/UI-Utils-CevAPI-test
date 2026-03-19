@@ -18,6 +18,26 @@ repositories {
 	// for more information about repositories.
 }
 
+loom {
+    // This disables the "Unpick" tool which crashes the build
+    it.runtimeOnlyLog4j = true
+    
+    // This ensures the 1.21.11 mappings are handled correctly
+    runs {
+        client {
+            client()
+            configName = "Minecraft Client"
+            ideConfigGenerated = true
+            runDir = "run"
+        }
+    }
+}
+
+// Add this at the VERY BOTTOM of the file to fix a common 1.21.11 Java error
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 21
+}
+
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
